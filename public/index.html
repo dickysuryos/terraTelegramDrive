@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TerraTelegram - Personal Cloud Drive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <!-- Background glow blobs -->
+  <div class="glow-blob glow-1"></div>
+  <div class="glow-blob glow-2"></div>
+
+  <!-- Main Login Screen -->
+  <div id="login-container" class="glass-card active">
+    <div class="login-header">
+      <div class="logo">🌌 TerraDrive</div>
+      <p class="subtitle">Secure Personal Cloud Powered by Telegram</p>
+    </div>
+    <form id="login-form">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" autocomplete="username" required placeholder="admin">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" autocomplete="current-password" required placeholder="••••••••">
+      </div>
+      <div class="error-msg" id="login-error"></div>
+      <button type="submit" class="glow-btn">Authenticate</button>
+    </form>
+  </div>
+
+  <!-- Dashboard Container -->
+  <div id="dashboard-container" class="hidden">
+    <!-- Navbar -->
+    <header class="navbar glass-card">
+      <div class="nav-left">
+        <div class="dashboard-logo">🌌 TerraDrive</div>
+        <div class="search-bar-container">
+          <input type="text" id="search-input" placeholder="Search files or tags...">
+          <button id="search-clear-btn" class="hidden">&times;</button>
+        </div>
+      </div>
+      <div class="nav-right">
+        <button id="link-tg-btn" class="glass-btn pulse-border">🔗 Link Telegram</button>
+        <div class="user-profile">
+          <span id="user-display">admin</span>
+          <button id="logout-btn" class="logout-btn">Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="main-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar glass-card">
+        <nav class="sidebar-nav">
+          <button class="nav-item active" data-nav="all">
+            <span class="nav-icon">🗂</span> All Files
+          </button>
+          <button class="nav-item" data-nav="trash">
+            <span class="nav-icon">🗑</span> Trash
+          </button>
+        </nav>
+
+        <!-- Storage Card -->
+        <div class="storage-card glass-card">
+          <div class="storage-title">Storage Space</div>
+          <div class="storage-bar">
+            <div id="storage-fill" class="storage-fill" style="width: 0%;"></div>
+          </div>
+          <div class="storage-stats">
+            <span id="storage-used">0 MB</span>
+            <span>Used</span>
+          </div>
+          <div id="active-files-count" class="storage-subtitle">0 active files</div>
+        </div>
+      </aside>
+
+      <!-- Main Body -->
+      <main class="content-area">
+        <!-- Explorer Header -->
+        <div class="explorer-header">
+          <div class="breadcrumbs" id="breadcrumbs">
+            <span class="crumb active" data-path="/">/</span>
+          </div>
+          <div class="action-buttons">
+            <button id="btn-refresh" class="glow-btn-small">🔄 Refresh</button>
+            <button id="btn-import-url" class="glow-btn-small">🔗 Import URL</button>
+            <button id="btn-upload-file" class="glow-btn-small primary">📤 Upload File</button>
+          </div>
+        </div>
+
+        <!-- Drag and Drop Area -->
+        <div id="drop-zone" class="drop-zone glass-card">
+          <div class="drop-zone-text">
+            <span>✨ Drag & drop files here, or click to upload</span>
+            <span class="size-hint">Max upload size: 100 MB</span>
+          </div>
+          <input type="file" id="file-input" class="hidden" multiple>
+        </div>
+
+        <!-- Directory folders -->
+        <div class="section-title">Folders</div>
+        <div class="folders-grid" id="folders-grid">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- Files Section -->
+        <div class="section-title files-title-row">
+          <span>Files</span>
+          <span id="current-view-title" class="current-view-title">Root directory</span>
+        </div>
+
+        <!-- Files List/Grid -->
+        <div class="files-container glass-card">
+          <table class="files-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Size</th>
+                <th>Source</th>
+                <th>Tags</th>
+                <th>Uploaded</th>
+                <th class="actions-header">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="files-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+          <div id="no-files-msg" class="no-files-msg hidden">
+            📂 No files found in this folder.
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Link Telegram Modal -->
+  <div id="modal-link-tg" class="modal">
+    <div class="modal-content glass-card">
+      <span class="close-btn">&times;</span>
+      <h2>🔗 Link Telegram Bot</h2>
+      <p>Associate your personal Telegram account to unlock bot messaging and uploads.</p>
+      <div class="link-instructions">
+        <ol>
+          <li>Click the button below to open the Telegram Bot.</li>
+          <li>Click the <strong>Start</strong> button in the chat.</li>
+          <li>Your account linking completes instantly.</li>
+        </ol>
+      </div>
+      <div class="link-status-box" id="tg-status-box">
+        Telegram Link: <span class="badge status-pending" id="tg-status-text">Disconnected</span>
+      </div>
+      <div class="modal-actions">
+        <a href="#" id="tg-direct-link" target="_blank" class="glow-btn text-center">Open Telegram Bot</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- URL Import Modal -->
+  <div id="modal-import-url" class="modal">
+    <div class="modal-content glass-card">
+      <span class="close-btn">&times;</span>
+      <h2>🔗 Import File via URL</h2>
+      <p>Enter a file link to download it directly onto your Telegram Drive space.</p>
+      <form id="import-url-form">
+        <div class="form-group">
+          <label for="import-url-input">Source Link</label>
+          <input type="url" id="import-url-input" required placeholder="https://example.com/file.zip">
+        </div>
+        <div class="form-group">
+          <label for="import-folder-input">Destination Folder</label>
+          <input type="text" id="import-folder-input" placeholder="/Downloads">
+        </div>
+        <div class="error-msg" id="import-error"></div>
+        <div class="modal-actions">
+          <button type="button" class="glass-btn cancel-btn">Cancel</button>
+          <button type="submit" class="glow-btn" id="import-submit-btn">Start Import</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- File Info Modal -->
+  <div id="modal-file-info" class="modal">
+    <div class="modal-content glass-card">
+      <span class="close-btn">&times;</span>
+      <h2>📄 File Metadata</h2>
+      <div class="info-grid">
+        <div class="info-label">Name</div>
+        <div class="info-value" id="info-name">-</div>
+
+        <div class="info-label">Size</div>
+        <div class="info-value" id="info-size">-</div>
+
+        <div class="info-label">Folder</div>
+        <div class="info-value" id="info-folder">-</div>
+
+        <div class="info-label">Source</div>
+        <div class="info-value" id="info-source">-</div>
+
+        <div class="info-label">Uploaded</div>
+        <div class="info-value" id="info-date">-</div>
+
+        <div class="info-label">Tags</div>
+        <div class="info-value" id="info-tags">-</div>
+
+        <div class="info-label">SHA-256</div>
+        <div class="info-value code-value" id="info-sha">-</div>
+
+        <div class="info-label">Telegram ID</div>
+        <div class="info-value code-value" id="info-tg-id">-</div>
+
+        <div class="info-label">Share Link</div>
+        <div class="info-value" id="info-share-container">
+          <a id="info-share-link" href="#" target="_blank" class="share-link-anchor">-</a>
+          <button type="button" id="btn-copy-share" class="copy-btn glass-btn" style="margin-left: 8px; padding: 2px 8px; font-size: 0.75rem;">📋 Copy</button>
+        </div>
+      </div>
+      <div class="modal-actions justify-end">
+        <button type="button" class="glow-btn close-modal-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tag Editor Modal -->
+  <div id="modal-edit-tags" class="modal">
+    <div class="modal-content glass-card">
+      <span class="close-btn">&times;</span>
+      <h2>🏷 Edit File Tags</h2>
+      <p>Assign tags to organize your files (e.g. Work, Bills, Photos).</p>
+      <form id="edit-tags-form">
+        <input type="hidden" id="edit-tags-file-id">
+        <div class="form-group">
+          <label for="tags-input">Tags (separated by commas or spaces)</label>
+          <input type="text" id="tags-input" placeholder="Work, Invoice, 2026">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="glass-btn cancel-btn">Cancel</button>
+          <button type="submit" class="glow-btn">Save Tags</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Move Folder Modal -->
+  <div id="modal-move-folder" class="modal">
+    <div class="modal-content glass-card">
+      <span class="close-btn">&times;</span>
+      <h2>📁 Move File</h2>
+      <p>Enter the target directory folder path.</p>
+      <form id="move-folder-form">
+        <input type="hidden" id="move-folder-file-id">
+        <div class="form-group">
+          <label for="move-folder-input">Target Folder Path</label>
+          <input type="text" id="move-folder-input" required placeholder="/Documents/Work">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="glass-btn cancel-btn">Cancel</button>
+          <button type="submit" class="glow-btn">Move File</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Media Preview Modal -->
+  <div id="modal-preview" class="modal">
+    <div class="modal-content glass-card preview-modal-content">
+      <span class="close-btn">&times;</span>
+      <h2 id="preview-title">Media Preview</h2>
+      <div id="preview-body" class="preview-body"></div>
+      <div class="modal-actions">
+        <a href="#" id="preview-download-btn" class="glow-btn-small primary text-center" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">Download File</a>
+        <button type="button" class="glass-btn close-modal-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="toast glass-card">
+    <span id="toast-text">Success!</span>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
