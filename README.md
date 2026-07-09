@@ -104,15 +104,28 @@ ADMIN_PASSWORD=your_custom_admin_password
 
 ## 🚀 Running the Application
 
-### Development Mode (with file watcher)
+### Native Development Mode (with file watcher)
 Runs the server and bot with Node's native watch mode:
 ```bash
 npm run dev
 ```
 
-### Production Mode
+### Native Production Mode
 ```bash
 npm start
+```
+
+### Docker Compose Mode (Recommmended for Production)
+Orchestrates both the MariaDB database and the application in isolated Docker containers:
+```bash
+# Start all containers in the background
+docker compose up -d
+
+# View container logs
+docker compose logs -f
+
+# Stop and remove containers
+docker compose down
 ```
 
 ---
