@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.0] - 2026-07-09
+
+### Added
+- **Local Telegram Bot API Server Support**:
+  - Integrated `telegram-bot-api` service into `docker-compose.yml` to lift default Bot API limits.
+  - Added support for custom `TELEGRAM_API_ROOT`, `TELEGRAM_API_ID`, and `TELEGRAM_API_HASH` in `.env`.
+  - Implemented high-speed local file reading using shared volume (`telegram_bot_data`) mounted at `/var/lib/telegram-bot-api`, completely bypassing HTTP transmission overhead when using the local server.
+- **HTTP Range Request Support (Partial Content)**:
+  - Enabled HTTP `206 Partial Content` rendering in `/api/files/download/:id` to support inline audio/video seeking, skipping, and smooth streaming playback in modern web browsers.
+- **Inline Media Rendering**:
+  - Switched `Content-Disposition` from `attachment` to `inline` for downloads and previews to let browsers render media files inline rather than forcing a file download.
+
+### Changed
+- **Increased File Upload Limit**:
+  - Increased file upload size ceiling from 100MB to 300MB in both UI checks and Express backend Multer configurations.
+- **Improved Video Delivery in Share Bot**:
+  - Configured Share Bot to deliver video files using `replyWithVideo` with streaming enabled (`supports_streaming: true`) instead of generic documents. This enables users to play, forward, and save shared videos directly within the Telegram app.
+- **Database & Container Decoupling**:
+  - Decoupled database deployment from Docker Compose, allowing the app container to connect directly to the existing external/host MariaDB database.
+
+### Removed
+- **Orphaned Welcome Message**:
+  - Removed welcome/start messages from the Share Bot when accessed directly without a file sharing payload.
+
 ## [1.0.0] - 2026-07-08
 
 ### Added

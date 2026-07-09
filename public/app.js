@@ -965,9 +965,9 @@ async function handleFilesUpload(filesList) {
   for (let i = 0; i < filesList.length; i++) {
     const file = filesList[i];
     
-    // Safety check file size: 100MB
-    if (file.size > 100 * 1024 * 1024) {
-      showToast(`File ${file.name} exceeds 100MB upload limit.`, true);
+    // Safety check file size: 300MB
+    if (file.size > 300 * 1024 * 1024) {
+      showToast(`File ${file.name} exceeds 300MB upload limit.`, true);
       continue;
     }
 

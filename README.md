@@ -60,8 +60,14 @@ DB_USER=root
 DB_PASSWORD=your_secure_db_password
 DB_NAME=telegram_drive
 TELEGRAM_BOT_TOKEN=123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ
+TELEGRAM_SHARE_BOT_TOKEN=987654321:ZYXwvuTsrQPonMlKjIhGfEdCBA
 SESSION_SECRET=a_very_long_random_session_secret_string
 ADMIN_PASSWORD=your_custom_admin_password
+
+# Local Telegram Bot API configuration (optional for >50MB uploads & >20MB downloads)
+TELEGRAM_API_ID=your_api_id
+TELEGRAM_API_HASH=your_api_hash
+TELEGRAM_API_ROOT=http://telegram-bot-api:8081
 ```
 
 ### Environment Variables Breakdown
@@ -75,9 +81,13 @@ ADMIN_PASSWORD=your_custom_admin_password
 | `DB_USER` | Database username | `root` |
 | `DB_PASSWORD` | Database password | — |
 | `DB_NAME` | Database schema name | `telegram_drive` |
-| `TELEGRAM_BOT_TOKEN` | Telegram Bot Token from @BotFather | — |
+| `TELEGRAM_BOT_TOKEN` | Main Telegram Bot Token from @BotFather | — |
+| `TELEGRAM_SHARE_BOT_TOKEN` | Share Telegram Bot Token from @BotFather | — |
 | `SESSION_SECRET` | Secret key for Express sessions | — |
 | `ADMIN_PASSWORD` | Password for the default `admin` user | `adminpass123` |
+| `TELEGRAM_API_ID` | App API ID from my.telegram.org (Local API) | — |
+| `TELEGRAM_API_HASH` | App API Hash from my.telegram.org (Local API) | — |
+| `TELEGRAM_API_ROOT` | Target Local Telegram Bot API Server URL | — |
 
 ---
 
@@ -104,15 +114,28 @@ ADMIN_PASSWORD=your_custom_admin_password
 
 ## 🚀 Running the Application
 
-### Development Mode (with file watcher)
+### Native Development Mode (with file watcher)
 Runs the server and bot with Node's native watch mode:
 ```bash
 npm run dev
 ```
 
-### Production Mode
+### Native Production Mode
 ```bash
 npm start
+```
+
+### Docker Compose Mode (Recommended for Production)
+Orchestrates the application and the optional Local Telegram Bot API Server in isolated Docker containers:
+```bash
+# Start all containers in the background
+docker compose up -d
+
+# View container logs
+docker compose logs -f
+
+# Stop and remove containers
+docker compose down
 ```
 
 ---

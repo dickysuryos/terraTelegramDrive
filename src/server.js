@@ -226,7 +226,7 @@ export function createServer(bot, shareBot = null) {
         cb(null, `${crypto.randomUUID()}${ext}`);
       }
     }),
-    limits: { fileSize: 100 * 1024 * 1024 } // limit: 100MB
+    limits: { fileSize: 300 * 1024 * 1024 } // limit: 300MB
   });
 
   // Upload File (Method 1 Web upload)
@@ -306,6 +306,11 @@ export function createServer(bot, shareBot = null) {
       res.json({ success: true, file: { id: fileRecordId, name: originalName } });
     } catch (error) {
       console.error('Web upload error:', error);
+      if (error.response && error.response.error_code === 413) {
+        return res.status(413).json({ 
+          error: 'File size exceeds standard Telegram Bot API limit (50MB). To upload files up to 300MB via Web, you must run a Local Telegram Bot API Server.' 
+        });
+      }
       res.status(500).json({ error: 'Failed to process and upload file.' });
     } finally {
       // 4. ALWAYS remove temp file immediately
@@ -516,15 +521,48 @@ export function createServer(bot, shareBot = null) {
 
       // Download from Telegram
       const fileInfo = await bot.telegram.getFile(file.telegram_file_id);
-      const fileUrl = `https://api.telegram.org/file/bot${bot.token}/${fileInfo.file_path}`;
+      
+      // If the file is stored locally (when using local Bot API with shared volumes)
+      if (fileInfo.file_path && fs.existsSync(fileInfo.file_path)) {
+        res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(file.name)}"`);
+        if (file.mime_type) {
+          res.setHeader('Content-Type', file.mime_type);
+        }
+        return res.sendFile(fileInfo.file_path);
+      }
 
-      const response = await fetch(fileUrl);
-      if (!response.ok) {
+      const apiRoot = process.env.TELEGRAM_API_ROOT || 'https://api.telegram.org';
+      const fileUrl = `${apiRoot}/file/bot${bot.token}/${fileInfo.file_path}`;
+
+      // Check for Range header from client and forward it to Telegram
+      const headers = {};
+      if (req.headers.range) {
+        headers['Range'] = req.headers.range;
+      }
+
+      const response = await fetch(fileUrl, { headers });
+      if (!response.ok && response.status !== 206) {
         throw new Error(`Failed to fetch file from Telegram: ${response.statusText}`);
       }
 
-      res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(file.name)}"`);
-      res.setHeader('Content-Type', file.mime_type || 'application/octet-stream');
+      // Forward status and range response headers back to client
+      res.status(response.status);
+      
+      const headersToForward = [
+        'content-type',
+        'content-length',
+        'content-range',
+        'accept-ranges'
+      ];
+      headersToForward.forEach(header => {
+        const value = response.headers.get(header);
+        if (value) {
+          res.setHeader(header, value);
+        }
+      });
+
+      // Ensure inline content disposition so browsers play/preview rather than force download
+      res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(file.name)}"`);
       res.setHeader('X-Content-Type-Options', 'nosniff');
 
       // Stream blocks back to client

@@ -99,9 +99,9 @@ Saat server dijalankan pertama kali, aplikasi akan otomatis:
 
 ---
 
-## 🚀 Deployment Menggunakan PM2 (Rekomendasi Server Produksi)
+## 🚀 Deployment Menggunakan PM2 (Alternatif Produksi Native)
 
-Agar aplikasi tetap berjalan di latar belakang (background) dan otomatis menyala kembali jika server restart, sangat disarankan menggunakan **PM2**:
+Agar aplikasi tetap berjalan di latar belakang (background) dan otomatis menyala kembali jika server restart, Anda bisa menggunakan **PM2**:
 
 1. Instal PM2 secara global:
    ```bash
@@ -119,6 +119,29 @@ Agar aplikasi tetap berjalan di latar belakang (background) dan otomatis menyala
    pm2 startup
    ```
    *(Salin dan jalankan perintah keluaran dari `pm2 startup` di terminal Anda)*.
+
+---
+
+## 🐳 Deployment Menggunakan Docker & Docker Compose (Paling Direkomendasikan)
+
+Jika Anda ingin men-deploy proyek ini di dalam container terisolasi yang mengemas server aplikasi dan database MariaDB secara otomatis:
+
+1. **Jalankan Container**:
+   Pastikan Docker dan Docker Compose sudah terpasang di server Anda. Jalankan perintah berikut di folder proyek:
+   ```bash
+   docker compose up -d
+   ```
+   *Perintah ini akan mendownload MariaDB, melakukan build image Node.js, mensinkronisasikan `.env`, dan menjalankan seluruh stack.*
+
+2. **Melihat Log Aplikasi**:
+   ```bash
+   docker compose logs -f app
+   ```
+
+3. **Menghentikan Layanan**:
+   ```bash
+   docker compose down
+   ```
 
 ---
 

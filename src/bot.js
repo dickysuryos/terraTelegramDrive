@@ -13,7 +13,13 @@ export function createBot(token) {
     throw new Error('Telegram Bot Token is required.');
   }
 
-  const bot = new Telegraf(token);
+  const botOptions = {};
+  if (process.env.TELEGRAM_API_ROOT) {
+    botOptions.telegram = {
+      apiRoot: process.env.TELEGRAM_API_ROOT
+    };
+  }
+  const bot = new Telegraf(token, botOptions);
 
   // Helper to get active user by chat ID
   async function getUserByChatId(chatId) {
@@ -511,7 +517,8 @@ export function createBot(token) {
       try {
         if (fileSize > 0 && fileSize <= 20 * 1024 * 1024) { // Download only if <= 20MB
           const fileInfo = await ctx.telegram.getFile(fileId);
-          const fileUrl = `https://api.telegram.org/file/bot${token}/${fileInfo.file_path}`;
+          const apiRoot = process.env.TELEGRAM_API_ROOT || 'https://api.telegram.org';
+          const fileUrl = `${apiRoot}/file/bot${token}/${fileInfo.file_path}`;
           const response = await fetch(fileUrl);
           if (response.ok) {
             const buffer = await response.arrayBuffer();
